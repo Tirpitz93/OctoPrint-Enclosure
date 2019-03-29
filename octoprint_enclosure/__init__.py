@@ -842,7 +842,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
         except Exception as ex:
             self.log_error(ex)
 
-    def clear_channel(self, channel):
+    def clear_channel(self, channel): #doesnt clean up pwm classes properly
         try:
             GPIO.cleanup(self.to_int(channel))
             self._logger.debug("Clearing channel %s", channel)
@@ -1114,6 +1114,8 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
         try:
             if queue_id is not None:
                 self._logger.debug("running scheduled queue id %s", queue_id)
+
+            self._logger.debug("PWM instances: %s", self.pwm_instances)
             for pwm in self.pwm_instances:
                 if gpio in pwm:
                     pwm_object = pwm[gpio]
@@ -1446,6 +1448,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
         outputsAfterSave = self.get_output_list()
 
         commonPins = list(set(outputsBeforeSave) & set(outputsAfterSave))
+        self._logger.debug("common pins: %s", commonPins)
 
         for pin in (pin for pin in outputsBeforeSave if pin not in commonPins):
             self.clear_channel(pin)
