@@ -682,7 +682,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
             for pwm_output in list(filter(lambda item: item['output_type'] == 'pwm' and item['pwm_temperature_linked'],
                                           self.rpi_outputs)):
                 gpio_pin = self.to_int(pwm_output['gpio_pin'])
-                if self._printer.is_printing() or self._settings.get(["debug"]):
+                if self._printer.is_printing() or self._settings.get(["debug"]) is True:
                     index_id = self.to_int(pwm_output['index_id'])
                     linked_id = self.to_int(pwm_output['linked_temp_sensor'])
                     linked_data = self.get_linked_temp_sensor_data(linked_id)
@@ -705,6 +705,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                     calculated_duty = self.to_int(pwm_output['duty_cycle'])
                 else:
                     calculated_duty = 0
+
 
                 self.write_pwm(gpio_pin, self.constrain(calculated_duty, 0, 100))
 
@@ -1110,7 +1111,9 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
             pass
 
     def write_pwm(self, gpio, pwm_value, queue_id=None):
+        self._logger.debug("Writing %s duty cycle to pin %s", pwm_value, gpio)
         try:
+
             if queue_id is not None:
                 self._logger.debug("running scheduled queue id %s", queue_id)
             for pwm in self.pwm_instances:
