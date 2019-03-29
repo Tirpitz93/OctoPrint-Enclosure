@@ -1452,7 +1452,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
         commonPins = list(set(outputsBeforeSave) & set(outputsAfterSave))
         self._logger.debug("common pins: %s", commonPins)
 
-        for pin in (pin for pin in outputsBeforeSave if pin not in commonPins):
+        for pin in (pin for pin in outputsBeforeSave if pin not in outputsAfterSave):
             self.clear_channel(pin)
 
         self.rpi_outputs_not_changed = commonPins
