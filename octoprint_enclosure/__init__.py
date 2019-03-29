@@ -18,7 +18,7 @@ import requests
 import inspect
 import threading
 import json
-from octoprint_enclosure.pwm import PWM
+
 
 class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplatePlugin, octoprint.plugin.SettingsPlugin,
                       octoprint.plugin.AssetPlugin, octoprint.plugin.BlueprintPlugin,
@@ -682,7 +682,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
             for pwm_output in list(filter(lambda item: item['output_type'] == 'pwm' and item['pwm_temperature_linked'],
                                           self.rpi_outputs)):
                 gpio_pin = self.to_int(pwm_output['gpio_pin'])
-                if self._printer.is_printing() or self._settings.get(["debug"]) is True:
+                if self._printer.is_printing():
                     index_id = self.to_int(pwm_output['index_id'])
                     linked_id = self.to_int(pwm_output['linked_temp_sensor'])
                     linked_data = self.get_linked_temp_sensor_data(linked_id)
@@ -702,12 +702,10 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                         calculated_duty = 0
 
                     self._logger.debug("Calculated duty for PWM %s is %s", index_id, calculated_duty)
-
                 elif self.print_complete:
                     calculated_duty = self.to_int(pwm_output['duty_cycle'])
                 else:
                     calculated_duty = 0
-
 
                 self.write_pwm(gpio_pin, self.constrain(calculated_duty, 0, 100))
 
@@ -850,7 +848,6 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
             self._logger.debug("Clearing channel %s", channel)
         except Exception as ex:
             self.log_error(ex)
-            self.log_error(ex.message)
 
     def generate_temp_hum_control_status(self):
         status = []
@@ -876,9 +873,9 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                     self.pwm_instances.remove(pwm)
                 self.clear_channel(pin)
                 GPIO.setup(pin, GPIO.OUT)
-                pwm_instance = PWM(pin, self.to_int(gpio_out_pwm['pwm_frequency']))
-                self._logger.info("starting pwm instance: %s", pwm_instance)
-                pwm_instance.start(50)
+                pwm_instance = GPIO.PWM(pin, self.to_int(gpio_out_pwm['pwm_frequency']))
+                self._logger.info("starting PWM on pin %s", pin)
+                pwm_instance.start(0)
                 self.pwm_instances.append({pin: pwm_instance})
             for gpio_out_neopixel in list(
                     filter(lambda item: item['output_type'] == 'neopixel_direct', self.rpi_outputs)):
@@ -908,7 +905,6 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                     self._logger.info("Adding PRINTER CONTROL event detect on pin %s with edge: %s", gpio_pin, edge)
         except Exception as ex:
             self.log_error(ex)
-            self.log_error(ex.message)
 
     def handle_filamment_detection(self, channel):
         try:
@@ -941,7 +937,6 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                         self._logger.info("Prevented end of filament detection, filament sensor timeout not elapsed.")
         except Exception as ex:
             self.log_error(ex)
-            self.log_error(ex.message)
 
     def start_filament_detection(self):
         self.stop_filament_detection()
@@ -961,7 +956,6 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                         callback=self.handle_filamment_detection, bouncetime=200)
         except Exception as ex:
             self.log_error(ex)
-            self.log_error(ex.message)
 
     def stop_filament_detection(self):
         try:
@@ -972,7 +966,6 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                 GPIO.remove_event_detect(self.to_int(filament_sensor['gpio_pin']))
         except Exception as ex:
             self.log_error(ex)
-            self.log_error(ex.message)
 
     def cancel_all_events_on_queue(self):
         for task in self.event_queue:
@@ -997,7 +990,6 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                         self.write_gpio(self.to_int(rpi_output['gpio_pin']), val)
         except Exception as ex:
             self.log_error(ex)
-            self.log_error(ex.message)
             pass
 
     def shell_command(self, command):
@@ -1007,7 +999,6 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                 dict(is_msg=True, msg=stdout, msg_type="success"))
         except Exception as ex:
             self.log_error(ex)
-            self.log_error(ex.message)
             self._plugin_manager.send_plugin_message(self._identifier,
                 dict(is_msg=True, msg="Could not execute shell script", msg_type="error"))
 
@@ -1047,7 +1038,6 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                         self.shell_command(command)
         except Exception as ex:
             self.log_error(ex)
-            self.log_error(ex.message)
             pass
 
     def send_gcode_command(self, command):
@@ -1103,7 +1093,6 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                             self.send_notification(msg)
         except Exception as ex:
             self.log_error(ex)
-            self.log_error(ex.message)
             pass
 
     def write_gpio(self, gpio, value, queue_id=None):
@@ -1122,26 +1111,17 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
             pass
 
     def write_pwm(self, gpio, pwm_value, queue_id=None):
-        self._logger.debug("Writing %s duty cycle to pin %s", pwm_value, gpio)
         try:
             if queue_id is not None:
                 self._logger.debug("running scheduled queue id %s", queue_id)
-            self._logger.debug("PWM instances: %s", self.pwm_instances)
             for pwm in self.pwm_instances:
                 if gpio in pwm:
-                    self._logger.debug("Found PWM Object")
                     pwm_object = pwm[gpio]
-                    self._logger.debug("PWM class dict: %s", pwm_object.__dict__)
-                    self._logger.debug("Old Duty Cycle is: %s %", pwm_object.dutyCycle)
-                    self._logger.debug("Pwm Frequency is: %s Hz", pwm_object.frequency)
                     old_pwm_value = pwm['duty_cycle'] if 'duty_cycle' in pwm else -1
-                    if not pwm_object.dutyCycle == self.to_int(pwm_value):
+                    if not self.to_int(old_pwm_value) == self.to_int(pwm_value):
                         pwm['duty_cycle'] = pwm_value
-                        try:
-                            pwm_object.dutyCycle = int(pwm_value) #new wrapper class should fix issues
-                        except Exception as e:
-                            self._logger.error(e.message)
-                            self._logger.error(e)
+                        pwm_object.start(pwm_value) #should be changed back to pwm_object.ChangeDutyCycle() but this
+                        # was causing errors.
                         self._logger.debug("Writing PWM on gpio: %s value %s", gpio, pwm_value)
                     self.update_ui()
                     if queue_id is not None:
@@ -1149,7 +1129,6 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                     break
         except Exception as ex:
             self.log_error(ex)
-            self.log_error(ex.message)
             pass
 
     def get_output_list(self):
