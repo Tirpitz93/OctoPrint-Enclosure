@@ -874,7 +874,9 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                     pwm = None
                     #self.pwm_instances.remove(pwm)
                 self.clear_channel(pin)
+                self._logger.info("Channel CLeared")
                 GPIO.setup(pin, GPIO.OUT)
+                self._logger.info("Channel setup")
                 pwm_instance = PWM(pin, self.to_int(gpio_out_pwm['pwm_frequency']))
                 self._logger.info("starting PWM on pin %s", pin)
                 self._logger.info("starting PWM %s", pwm_instance)
