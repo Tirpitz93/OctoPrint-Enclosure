@@ -31,7 +31,7 @@ class PWM(gpio.PWM):
     
     @dutyCycle.setter
     def dutyCycle(self, *args, **kwargs):
-        if not self.status:
+        if not self.status == "Running":
             self.start(*args)
         else:
             super(PWM, self).ChangeDutyCycle(*args)
@@ -49,11 +49,10 @@ class PWM(gpio.PWM):
     
     @frequency.setter
     def frequency(self, *args, **kwargs):
-        if not self.status:
+        if not self.status == "Running":
             self.start(0)
-        else:
-            super(PWM, self).ChangeFrequency(*args)
-        self.frequency= args[0]
+        super(PWM, self).ChangeFrequency(*args)
+        self._frequency= args[0]
 
     def start(self, *args, **kwargs):
         self.status = "Running"
