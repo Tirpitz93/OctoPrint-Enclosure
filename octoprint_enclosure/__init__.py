@@ -1115,11 +1115,10 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
     def write_pwm(self, gpio, pwm_value, queue_id=None):
         self._logger.debug("Writing %s duty cycle to pin %s", pwm_value, gpio)
         try:
-
             if queue_id is not None:
                 self._logger.debug("running scheduled queue id %s", queue_id)
+            self._logger.debug("PWM instances: %s", self.pwm_instances)
             for pwm in self.pwm_instances:
-                self._logger.debug("PWM instances: %s", self.pwm_instances)
                 if gpio in pwm:
                     self._logger.debug("Found PWM Object")
                     pwm_object = pwm[gpio]
