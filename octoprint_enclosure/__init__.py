@@ -695,7 +695,9 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
 
                     try:
                         calculated_duty = ((current_temp - temp_a) * (duty_b - duty_a) / (temp_b - temp_a)) + duty_a
-                        calculated_duty = self.constrain(calculated_duty, duty_a,100)
+
+
+
                     except:
                         calculated_duty = 0
 
@@ -1115,11 +1117,12 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
             for pwm in self.pwm_instances:
                 if gpio in pwm:
                     pwm_object = pwm[gpio]
+                    self._logger.debug("Old Duty Cycle is: %s", pwm_object.dutyCycle)
+                    self._logger.debug("Pwm Frequency is: %s", pwm_object.frequency)
                     old_pwm_value = pwm['duty_cycle'] if 'duty_cycle' in pwm else -1
                     if not self.to_int(old_pwm_value) == self.to_int(pwm_value):
                         pwm['duty_cycle'] = pwm_value
-                        pwm_object.start(pwm_value) #should be changed back to pwm_object.ChangeDutyCycle() but this
-                        # was causing errors.
+                        pwm_object.dutyCycle = pwm_value #new wrapper class should fix issues
                         self._logger.debug("Writing PWM on gpio: %s value %s", gpio, pwm_value)
                     self.update_ui()
                     if queue_id is not None:

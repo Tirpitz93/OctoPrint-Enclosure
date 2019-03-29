@@ -26,11 +26,11 @@ class PWM(gpio.PWM):
         self.start(0)
 
     @property
-    def DutyCycle(self):
+    def dutyCycle(self):
         return self._duty_cycle
     
-    @DutyCycle.setter
-    def DutyCycle(self, *args, **kwargs):
+    @dutyCycle.setter
+    def dutyCycle(self, *args, **kwargs):
         if not self.status:
             self.start(*args)
         else:
@@ -41,7 +41,7 @@ class PWM(gpio.PWM):
         self.frequency = args[0]
 
     def ChangeDutyCycle(self, *args, **kwargs):
-        self.DutyCycle = args[0]
+        self.dutyCycle = args[0]
 
     @property
     def frequency(self):
