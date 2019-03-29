@@ -877,7 +877,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                 self.clear_channel(pin)
                 GPIO.setup(pin, GPIO.OUT)
                 pwm_instance = PWM(pin, self.to_int(gpio_out_pwm['pwm_frequency']))
-                self._logger.info("starting PWM on pin %s", pin)
+                self._logger.info("starting pwm instance: %s", pwm_instance)
                 pwm_instance.start(50)
                 self.pwm_instances.append({pin: pwm_instance})
             for gpio_out_neopixel in list(
@@ -908,6 +908,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                     self._logger.info("Adding PRINTER CONTROL event detect on pin %s with edge: %s", gpio_pin, edge)
         except Exception as ex:
             self.log_error(ex)
+            self.log_error(ex.message)
 
     def handle_filamment_detection(self, channel):
         try:
@@ -940,6 +941,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                         self._logger.info("Prevented end of filament detection, filament sensor timeout not elapsed.")
         except Exception as ex:
             self.log_error(ex)
+            self.log_error(ex.message)
 
     def start_filament_detection(self):
         self.stop_filament_detection()
@@ -959,6 +961,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                         callback=self.handle_filamment_detection, bouncetime=200)
         except Exception as ex:
             self.log_error(ex)
+            self.log_error(ex.message)
 
     def stop_filament_detection(self):
         try:
@@ -969,6 +972,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                 GPIO.remove_event_detect(self.to_int(filament_sensor['gpio_pin']))
         except Exception as ex:
             self.log_error(ex)
+            self.log_error(ex.message)
 
     def cancel_all_events_on_queue(self):
         for task in self.event_queue:
@@ -993,6 +997,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                         self.write_gpio(self.to_int(rpi_output['gpio_pin']), val)
         except Exception as ex:
             self.log_error(ex)
+            self.log_error(ex.message)
             pass
 
     def shell_command(self, command):
@@ -1002,6 +1007,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                 dict(is_msg=True, msg=stdout, msg_type="success"))
         except Exception as ex:
             self.log_error(ex)
+            self.log_error(ex.message)
             self._plugin_manager.send_plugin_message(self._identifier,
                 dict(is_msg=True, msg="Could not execute shell script", msg_type="error"))
 
@@ -1041,6 +1047,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                         self.shell_command(command)
         except Exception as ex:
             self.log_error(ex)
+            self.log_error(ex.message)
             pass
 
     def send_gcode_command(self, command):
@@ -1096,6 +1103,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                             self.send_notification(msg)
         except Exception as ex:
             self.log_error(ex)
+            self.log_error(ex.message)
             pass
 
     def write_gpio(self, gpio, value, queue_id=None):
@@ -1141,6 +1149,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                     break
         except Exception as ex:
             self.log_error(ex)
+            self.log_error(ex.message)
             pass
 
     def get_output_list(self):

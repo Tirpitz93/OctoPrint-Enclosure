@@ -54,17 +54,18 @@ class PWM(gpio.PWM):
     def frequency(self, *args, **kwargs):
         if not self.status == "Running":
             self.start(0)
-        super(PWM, self).ChangeFrequency(*args)
+        super(PWM, self).ChangeFrequency(self, *args, **kwargs)
         self._frequency= args[0]
 
     def start(self, *args, **kwargs):
         self.status = "Running"
         self._duty_cycle = args[0]
-        super(PWM, self).start(*args, **kwargs)
+
+        super(PWM, self).start(self, *args, **kwargs)
 
     def stop(self, *args, **kwargs):
         self.status = "Stopped"
-        super(PWM, self).stop(*args, **kwargs)
+        super(PWM, self).stop(self, *args, **kwargs)
 
     def cleanup(self):
         gpio.cleanup(self.pin)
