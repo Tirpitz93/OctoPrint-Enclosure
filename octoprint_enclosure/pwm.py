@@ -5,14 +5,17 @@ import RPi.GPIO as gpio
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
+logger.info("PWM logger started")
 class PWM(gpio.PWM):
     """Wrapper for RPi.GPIO.PWM that allows querying state"""
     
     _duty_cycle = None  # type: float
 
 
-    def __new__(cls, *args, **kwargs):
-        instance = super(PWM, cls).__new__(cls, *args, **kwargs)
+    def __new__(*args, **kwargs):
+        logger.info(*args)
+        instance = super(PWM, PWM).__new__( *args, **kwargs)
         return instance
 
     def __init__(self, *args, **kwargs):
