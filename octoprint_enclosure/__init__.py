@@ -844,8 +844,8 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
 
     def clear_channel(self, channel): #doesnt clean up pwm classes properly
         try:
-            GPIO.cleanup(self.to_int(channel))
-            self._logger.debug("Clearing channel %s", channel)
+            GPIO.cleanup(int(channel))
+            self._logger.debug("Clearing channel %s", int(channel))
         except Exception as ex:
             self._logger.error(ex)
             self._logger.error(ex.message)
