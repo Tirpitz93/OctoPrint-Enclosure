@@ -19,7 +19,9 @@ class PWM(gpio.PWM):
         :param DutyCycle: duty cycle 0-100
         :param Freq: frequency in Hertz
         """
+        gpio.setup(args[1], gpio.OUT)
         super(PWM,self).__init__(self,*args, **kwargs)
+
         self.status = "Stopped"
         self._duty_cycle = 0
         self._frequency = args[2]

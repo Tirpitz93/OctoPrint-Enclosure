@@ -850,6 +850,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
             self._logger.debug("Clearing channel %s", channel)
         except Exception as ex:
             self.log_error(ex)
+            self.log_error(ex.message)
 
     def generate_temp_hum_control_status(self):
         status = []
