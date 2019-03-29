@@ -1119,7 +1119,9 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
             if queue_id is not None:
                 self._logger.debug("running scheduled queue id %s", queue_id)
             for pwm in self.pwm_instances:
+                self._logger.debug("PWM instances: %s", self.pwm_instances)
                 if gpio in pwm:
+                    self._logger.debug("Found PWM Object")
                     pwm_object = pwm[gpio]
                     self._logger.debug("PWM class dict: %s", pwm_object.__dict__)
                     self._logger.debug("Old Duty Cycle is: %s %", pwm_object.dutyCycle)
@@ -1127,7 +1129,11 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                     old_pwm_value = pwm['duty_cycle'] if 'duty_cycle' in pwm else -1
                     if not pwm_object.dutyCycle == self.to_int(pwm_value):
                         pwm['duty_cycle'] = pwm_value
-                        pwm_object.dutyCycle = int(pwm_value) #new wrapper class should fix issues
+                        try:
+                            pwm_object.dutyCycle = int(pwm_value) #new wrapper class should fix issues
+                        except Exception as e:
+                            self._logger.error(e.message)
+                            self._logger.error(e)
                         self._logger.debug("Writing PWM on gpio: %s value %s", gpio, pwm_value)
                     self.update_ui()
                     if queue_id is not None:
