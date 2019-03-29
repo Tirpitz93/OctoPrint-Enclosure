@@ -25,7 +25,7 @@ class PWM(gpio.PWM):
 
         gpio.setup(args[0], gpio.OUT)
         logger.info(args)
-        super(PWM,self).__init__(self,13, 100)
+        super(PWM,self).__init__(self,13)
         logger.info(args)
         self.status = "Stopped"
         self._duty_cycle = 0
