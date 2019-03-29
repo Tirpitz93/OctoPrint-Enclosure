@@ -32,9 +32,9 @@ class PWM(gpio.PWM):
     @dutyCycle.setter
     def dutyCycle(self, *args, **kwargs):
 
-        self.start(*args)
+        self.start(*args, **kwargs)
 
-        #super(PWM, self).ChangeDutyCycle(*args)
+        super(PWM, self).ChangeDutyCycle(*args, **kwargs)
         self._duty_cycle = args[0]
 
     def ChangeFrequency(self, *args, **kwargs):

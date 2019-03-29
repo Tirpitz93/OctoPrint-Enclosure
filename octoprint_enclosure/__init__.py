@@ -875,7 +875,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                 GPIO.setup(pin, GPIO.OUT)
                 pwm_instance = PWM(pin, self.to_int(gpio_out_pwm['pwm_frequency']))
                 self._logger.info("starting PWM on pin %s", pin)
-                pwm_instance.start(0)
+                pwm_instance.start(50)
                 self.pwm_instances.append({pin: pwm_instance})
             for gpio_out_neopixel in list(
                     filter(lambda item: item['output_type'] == 'neopixel_direct', self.rpi_outputs)):
@@ -1120,13 +1120,12 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                 if gpio in pwm:
                     pwm_object = pwm[gpio]
                     self._logger.debug("PWM class dict: %s", pwm_object.__dict__)
-                    self._logger.debug("PWM class dict: %s", pwm_object.__dict__)
                     self._logger.debug("Old Duty Cycle is: %s %", pwm_object.dutyCycle)
                     self._logger.debug("Pwm Frequency is: %s Hz", pwm_object.frequency)
                     old_pwm_value = pwm['duty_cycle'] if 'duty_cycle' in pwm else -1
                     if not pwm_object.dutyCycle == self.to_int(pwm_value):
                         pwm['duty_cycle'] = pwm_value
-                        pwm_object.dutyCycle = pwm_value #new wrapper class should fix issues
+                        pwm_object.dutyCycle = int(pwm_value) #new wrapper class should fix issues
                         self._logger.debug("Writing PWM on gpio: %s value %s", gpio, pwm_value)
                     self.update_ui()
                     if queue_id is not None:
