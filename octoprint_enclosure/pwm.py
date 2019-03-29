@@ -2,7 +2,9 @@
 """PWM wrapper for RPi.GPIO.PWM
 """
 import RPi.GPIO as gpio
-
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 class PWM(gpio.PWM):
     """Wrapper for RPi.GPIO.PWM that allows querying state"""
     
@@ -19,9 +21,10 @@ class PWM(gpio.PWM):
         :param DutyCycle: duty cycle 0-100
         :param Freq: frequency in Hertz
         """
+
         gpio.setup(args[1], gpio.OUT)
         super(PWM,self).__init__(self,*args, **kwargs)
-
+        logger.info(*args)
         self.status = "Stopped"
         self._duty_cycle = 0
         self._frequency = args[2]

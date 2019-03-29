@@ -876,6 +876,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                 GPIO.setup(pin, GPIO.OUT)
                 pwm_instance = PWM(pin, self.to_int(gpio_out_pwm['pwm_frequency']))
                 self._logger.info("starting PWM on pin %s", pin)
+                self._logger.info("starting PWM %s", pwm_instance)
                 pwm_instance.start(0)
                 self.pwm_instances.append({pin: pwm_instance})
             for gpio_out_neopixel in list(
