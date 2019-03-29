@@ -13,17 +13,18 @@ class PWM(gpio.PWM):
         instance = super(PWM, cls).__new__(cls, *args, **kwargs)
         return instance
 
-    def __init__(self, Pin,  Freq=100):
+    def __init__(self, *args, **kwargs):
         """
         :param Pin: Pin Number according to gpio mode
         :param DutyCycle: duty cycle 0-100
         :param Freq: frequency in Hertz
         """
+        super(PWM,self).__init__(self,*args, **kwargs)
         self.status = "Stopped"
         self._duty_cycle = 0
-        self._frequency = Freq
-        self.pin = Pin
-        self.start(0)
+        self._frequency = args[2]
+        self.pin = args[1]
+        self.start(100)
 
     @property
     def dutyCycle(self):
