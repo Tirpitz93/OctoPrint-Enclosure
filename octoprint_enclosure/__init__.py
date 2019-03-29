@@ -18,7 +18,7 @@ import requests
 import inspect
 import threading
 import json
-
+from octoprint_enclosure.pwm import PWM
 
 class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplatePlugin, octoprint.plugin.SettingsPlugin,
                       octoprint.plugin.AssetPlugin, octoprint.plugin.BlueprintPlugin,
@@ -695,6 +695,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
 
                     try:
                         calculated_duty = ((current_temp - temp_a) * (duty_b - duty_a) / (temp_b - temp_a)) + duty_a
+                        calculated_duty = self.constrain(calculated_duty, duty_a,100)
                     except:
                         calculated_duty = 0
 
@@ -870,7 +871,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                     self.pwm_instances.remove(pwm)
                 self.clear_channel(pin)
                 GPIO.setup(pin, GPIO.OUT)
-                pwm_instance = GPIO.PWM(pin, self.to_int(gpio_out_pwm['pwm_frequency']))
+                pwm_instance = PWM(pin, self.to_int(gpio_out_pwm['pwm_frequency']))
                 self._logger.info("starting PWM on pin %s", pin)
                 pwm_instance.start(0)
                 self.pwm_instances.append({pin: pwm_instance})
