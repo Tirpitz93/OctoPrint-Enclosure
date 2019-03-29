@@ -700,6 +700,7 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
                         calculated_duty = 0
 
                     self._logger.debug("Calculated duty for PWM %s is %s", index_id, calculated_duty)
+
                 elif self.print_complete:
                     calculated_duty = self.to_int(pwm_output['duty_cycle'])
                 else:
@@ -1115,6 +1116,8 @@ class EnclosurePlugin(octoprint.plugin.StartupPlugin, octoprint.plugin.TemplateP
             for pwm in self.pwm_instances:
                 if gpio in pwm:
                     pwm_object = pwm[gpio]
+                    self._logger.debug("PWM class dict: %s", pwm_object.__dict__)
+                    self._logger.debug("PWM class dict: %s", pwm_object.__dict__)
                     self._logger.debug("Old Duty Cycle is: %s %", pwm_object.dutyCycle)
                     self._logger.debug("Pwm Frequency is: %s Hz", pwm_object.frequency)
                     old_pwm_value = pwm['duty_cycle'] if 'duty_cycle' in pwm else -1

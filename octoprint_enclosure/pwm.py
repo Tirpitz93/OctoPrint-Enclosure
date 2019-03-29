@@ -66,4 +66,8 @@ class PWM(gpio.PWM):
     def cleanup(self):
         gpio.cleanup(self.pin)
         pass
-    
+    def __str__(self):
+        return "<PWM Object: Stutus: %s, GPIO: %s, Duty Cycle: %s, Frequency: %s>", self.status,self.pin, \
+               self._duty_cycle, self._frequency
+    def __repr__(self):
+        return self.__str__()
