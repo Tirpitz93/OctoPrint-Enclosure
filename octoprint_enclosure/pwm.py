@@ -3,19 +3,17 @@
 """
 import RPi.GPIO as gpio
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("octoprint.plugins.enclosure")
 logger.setLevel(logging.DEBUG)
-
-logger.info("PWM logger started")
 class PWM(gpio.PWM):
     """Wrapper for RPi.GPIO.PWM that allows querying state"""
     
     _duty_cycle = None  # type: float
 
 
-    def __new__(*args, **kwargs):
-        logger.info(*args)
-        instance = super(PWM, PWM).__new__( *args, **kwargs)
+    def __new__(cls, *args, **kwargs):
+        logger.info("args to new: %s", args)
+        instance = super(PWM, cls).__new__(cls, *args)
         return instance
 
     def __init__(self, *args, **kwargs):
@@ -24,7 +22,7 @@ class PWM(gpio.PWM):
         :param DutyCycle: duty cycle 0-100
         :param Freq: frequency in Hertz
         """
-        logger.info(*args)
+        logger.info(args)
         gpio.setup(args[1], gpio.OUT)
         super(PWM,self).__init__(self,*args, **kwargs)
 
